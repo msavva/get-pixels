@@ -11,6 +11,7 @@ var fs            = require('fs')
 var request       = require('request')
 var mime          = require('mime-types')
 var parseDataURI  = require('parse-data-uri')
+var fileType      = require('file-type')
 
 function handlePNG(data, cb) {
   var png = new PNG();
@@ -97,8 +98,13 @@ function handleBMP(data, cb) {
   cb(null, result.transpose(1,0))
 }
 
-
 function doParse(mimeType, data, cb) {
+  var mime = fileType(data);
+  mimeType = mime ? mime.mime : mimeType;
+  doParseVerified(mimeType, data, cb)
+}
+
+function doParseVerified(mimeType, data, cb) {
   switch(mimeType) {
     case 'image/png':
       handlePNG(data, cb)
