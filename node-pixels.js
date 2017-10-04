@@ -4,9 +4,8 @@ var ndarray       = require('ndarray')
 var path          = require('path')
 var PNG           = require('pngjs').PNG
 var jpeg          = require('jpeg-js')
-var pack          = require('ndarray-pack')
 var GifReader     = require('omggif').GifReader
-var Bitmap        = require('node-bitmap')
+var bmp        = require('bmp-js')
 var fs            = require('fs')
 var request       = require('request')
 var mime          = require('mime-types')
@@ -83,19 +82,15 @@ function handleGIF(data, cb) {
 }
 
 function handleBMP(data, cb) {
-  var bmp = new Bitmap(data)
   try {
-    bmp.init()
+    var bmpData = bmp.decode(data)
+    var nshape = [ bmpData.height, bmpData.width, 4 ]
+    var result = ndarray(new Uint8Array(bmpData.data), nshape)
+    cb(null, result.transpose(1,0))
   } catch(e) {
     cb(e)
     return
   }
-  var bmpData = bmp.getData()
-  var nshape = [ bmpData.getHeight(), bmpData.getWidth(), 4 ]
-  var ndata = new Uint8Array(nshape[0] * nshape[1] * nshape[2])
-  var result = ndarray(ndata, nshape)
-  pack(bmpData, result)
-  cb(null, result.transpose(1,0))
 }
 
 function doParse(mimeType, data, cb) {

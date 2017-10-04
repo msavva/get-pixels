@@ -11,7 +11,7 @@ var getPixels = typeof window === "undefined" ?
 var EXPECTED_IMAGE = ndarray(
 [0,0,0,255,255,0,0,255,255,255,0,255,255,0,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0,255,0,255,0,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,0,0,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255],[16,8,4],[4,64,1])
 
-function test_image(t, img, tol) {
+function test_image(t, img, tol, name) {
   t.equals(img.shape[0], 16)
   t.equals(img.shape[1], 8)
 
@@ -19,9 +19,9 @@ function test_image(t, img, tol) {
     for(var j=0; j<8; ++j) {
       for(var k=0; k<3; ++k) {
         if(tol) {
-          t.ok(Math.abs(img.get(i,j,k)-EXPECTED_IMAGE.get(i,j,k)) < tol)
+          t.ok(Math.abs(img.get(i,j,k)-EXPECTED_IMAGE.get(i,j,k)) < tol, name + '(' + [i,j,k] + ')')
         } else {
-          t.equals(img.get(i,j,k), EXPECTED_IMAGE.get(i,j,k))
+          t.equals(img.get(i,j,k), EXPECTED_IMAGE.get(i,j,k), name + '(' + [i,j,k] + ')')
         }
       }
     }
@@ -46,7 +46,7 @@ test("get-pixels-png", function(t) {
       t.end()
       return
     }
-    test_image(t, pixels)
+    test_image(t, pixels, 0, "test/test_pattern.png")
     t.end()
   })
 })
@@ -72,7 +72,7 @@ test("get-pixels-jpg", function(t) {
       t.end()
       return
     }
-    test_image(t, pixels, 4)
+    test_image(t, pixels, 4, "test/test_pattern.jpg")
     t.end()
   })
 })
@@ -84,12 +84,12 @@ test("get-pixels-gif", function(t) {
       t.end()
       return
     }
-    test_image(t, pixels.pick(0))
+    test_image(t, pixels.pick(0), 0, "test/test_pattern.gif")
     t.end()
   })
 })
 
-/*
+
 test("get-pixels-bmp", function(t) {
   getPixels(path.join(__dirname, "test_pattern.bmp"), function(err, pixels) {
     if(err) {
@@ -97,11 +97,11 @@ test("get-pixels-bmp", function(t) {
       t.end()
       return
     }
-    test_image(t, pixels)
+    test_image(t, pixels, 4, "get-pixels-bmp")
     t.end()
   })
 })
-*/
+
 
 test("data url", function(t) {
   var url = "data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7"
@@ -125,7 +125,7 @@ test("get-pixels-buffer", function(t) {
       t.end()
       return
     }
-    test_image(t, pixels)
+    test_image(t, pixels, 0, "test_pattern.png")
     t.end()
   })
 })
@@ -139,7 +139,7 @@ test("get-url png img", function(t) {
       t.end();
       return;
     }
-    test_image(t, pixels);
+    test_image(t, pixels, 0, "get-url png img");
     t.end();
   });
 });
@@ -153,7 +153,7 @@ test("get-url jpg img", function(t) {
       t.end();
       return;
     }
-    test_image(t, pixels);
+    test_image(t, pixels, 4, "get-url jpg img");
     t.end();
   });
 });
@@ -167,7 +167,7 @@ test("get-url gif img", function(t) {
       t.end();
       return;
     }
-    test_image(t, pixels.pick(0));
+    test_image(t, pixels.pick(0), 0, "get-url gif img");
     t.end();
   });
 });
