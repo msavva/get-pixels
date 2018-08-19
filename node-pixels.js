@@ -5,12 +5,29 @@ var path          = require('path')
 var PNG           = require('pngjs').PNG
 var jpeg          = require('jpeg-js')
 var GifReader     = require('omggif').GifReader
-var bmp        = require('bmp-js')
+var bmp           = require('bmp-js')
+var tiff          = require('utif')
+var TGA           = require('tga')
 var fs            = require('fs')
 var request       = require('request')
 var mime          = require('mime-types')
 var parseDataURI  = require('parse-data-uri')
 var fileType      = require('file-type')
+
+function print_pixels(array) {
+  for (var h = 0; h < array.shape[0]; h++) {
+     var line = [];   
+     for (var w = 0; w < array.shape[1]; w++) {
+      var c = [];
+      for (var k = 0; k < array.shape[2]; k++) {
+        c.push(array.get(h,w,k));
+      }
+      line.push(c.join(','));
+     }
+     console.log(line.join(' ')) 
+     console.log('---') 
+  }
+}
 
 function handlePNG(data, cb) {
   var png = new PNG();
@@ -85,7 +102,49 @@ function handleBMP(data, cb) {
   try {
     var bmpData = bmp.decode(data)
     var nshape = [ bmpData.height, bmpData.width, 4 ]
-    var result = ndarray(new Uint8Array(bmpData.data), nshape)
+    var result = ndarray(new Uint8Array(bmpData.data), nshape);
+    var hasAlpha = bmpData.is_with_alpha || (bmpData.bitPP === 32);
+    for (var h = 0; h < bmpData.height; h++) {
+     for (var w = 0; w < bmpData.width; w++) {
+        if (!hasAlpha) {
+          result.set(h,w,0,255); 
+        }
+        var tmp = result.get(h,w,0);
+        result.set(h,w,0, result.get(h,w,3));
+        result.set(h,w,3, tmp);
+        tmp = result.get(h,w,1);
+        result.set(h,w,1, result.get(h,w,2));
+        result.set(h,w,2, tmp);
+      } 
+    }
+    cb(null, result.transpose(1,0))
+  } catch(e) {
+    cb(e)
+    return
+  }
+}
+
+function handleTIFF(data, cb) {
+  try {
+    // TODO: tiffs can be multiple images
+    var ifds = tiff.decode(data)
+    tiff.decodeImages(data, ifds)
+    var tiffData = ifds[0]
+    var rgba  = tiff.toRGBA8(tiffData);
+    var nshape = [ tiffData.height, tiffData.width, 4 ]
+    var result = ndarray(rgba, nshape)
+    cb(null, result.transpose(1,0))
+  } catch(e) {
+    cb(e)
+    return
+  }
+}
+
+function handleTGA(data, cb) {
+  try {
+    var tgaData = new TGA(data)
+    var nshape = [ tgaData.height, tgaData.width, 4 ]
+    var result = ndarray(new Uint8Array(tgaData.pixels), nshape)
     cb(null, result.transpose(1,0))
   } catch(e) {
     cb(e)
@@ -116,6 +175,15 @@ function doParseVerified(mimeType, data, cb) {
 
     case 'image/bmp':
       handleBMP(data, cb)
+    break
+
+    case 'image/x-tga':
+    case 'image/tga':
+      handleTGA(data, cb)
+    break
+
+    case 'image/tiff':
+      handleTIFF(data, cb)
     break
 
     default:

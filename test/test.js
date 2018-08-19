@@ -17,7 +17,7 @@ function test_image(t, img, tol, name) {
 
   for(var i=0; i<16; ++i) {
     for(var j=0; j<8; ++j) {
-      for(var k=0; k<3; ++k) {
+      for(var k=0; k<4; ++k) {
         if(tol) {
           t.ok(Math.abs(img.get(i,j,k)-EXPECTED_IMAGE.get(i,j,k)) < tol, name + '(' + [i,j,k] + ')')
         } else {
@@ -97,11 +97,46 @@ test("get-pixels-bmp", function(t) {
       t.end()
       return
     }
-    test_image(t, pixels, 4, "get-pixels-bmp")
+    test_image(t, pixels, 0, "get-pixels-bmp")
     t.end()
   })
 })
 
+test("get-pixels-bmp-compress", function(t) {
+  getPixels(path.join(__dirname, "test_pattern.compress.bmp"), function(err, pixels) {
+    if(err) {
+      t.error(err, "failed to parse compressed bmp")
+      t.end()
+      return
+    }
+    test_image(t, pixels, 8, "get-pixels-bmp-compress")
+    t.end()
+  })
+})
+
+test("get-pixels-tga", function(t) {
+  getPixels(path.join(__dirname, "test_pattern.tga"), function(err, pixels) {
+    if(err) {
+      t.error(err, "failed to parse tga")
+      t.end()
+      return
+    }
+    test_image(t, pixels, 0, "get-pixels-tga")
+    t.end()
+  })
+})
+
+test("get-pixels-tiff", function(t) {
+  getPixels(path.join(__dirname, "test_pattern.tiff"), function(err, pixels) {
+    if(err) {
+      t.error(err, "failed to parse tiff")
+      t.end()
+      return
+    }
+    test_image(t, pixels, 0, "get-pixels-tiff")
+    t.end()
+  })
+})
 
 test("data url", function(t) {
   var url = "data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7"
