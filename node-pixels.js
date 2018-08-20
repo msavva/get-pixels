@@ -177,6 +177,8 @@ function doParseVerified(mimeType, data, cb) {
       handleBMP(data, cb)
     break
 
+    case 'image/x-targa':
+    case 'image/targa':
     case 'image/x-tga':
     case 'image/tga':
       handleTGA(data, cb)
