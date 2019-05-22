@@ -159,6 +159,9 @@ function doParse(mimeType, data, cb) {
 }
 
 function doParseVerified(mimeType, data, cb) {
+  if (mimeType != null) {
+    mimeType = mimeType.toLowerCase();
+  }
   switch(mimeType) {
     case 'image/png':
       handlePNG(data, cb)
