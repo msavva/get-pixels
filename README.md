@@ -7,6 +7,8 @@ Currently the following file formats are supported:
 * `PNG`
 * `JPEG`
 * `GIF`
+* `TGA`
+* `TIFF`
 
 Example
 =======
