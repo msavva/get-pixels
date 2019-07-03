@@ -8,6 +8,7 @@ var GifReader     = require('omggif').GifReader
 var bmp           = require('bmp-js')
 var tiff          = require('utif')
 var TGA           = require('tga')
+var PSD           = require('PSD') 
 var fs            = require('fs')
 var request       = require('request')
 var mime          = require('mime-types')
@@ -152,6 +153,19 @@ function handleTGA(data, cb) {
   }
 }
 
+function handlePSD(data, cb) {
+  try {
+    var psd = new PSD(data);
+    psd.parse();
+    var nshape = [ psd.image.height(), psd.image.width(), 4 ]
+    var result = ndarray(psd.image.pixelData, nshape)
+    cb(null, result.transpose(1,0))
+  } catch (e) {
+    cb(e)
+    return
+  }
+}
+
 function doParse(mimeType, data, cb) {
   var mime = fileType(data);
   mimeType = mime ? mime.mime : mimeType;
@@ -189,6 +203,10 @@ function doParseVerified(mimeType, data, cb) {
 
     case 'image/tiff':
       handleTIFF(data, cb)
+    break
+
+    case 'image/vnd.adobe.photoshop':
+      handlePSD(data, cb)
     break
 
     default:

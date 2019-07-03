@@ -11,6 +11,7 @@
     "ndarray": "^1.0.13",
     "pngjs": "^3.3.0",
     "jpeg-js": "^0.1.1",
+    "psd": "^3.2.0",
     "omggif": "^1.0.5",
     "bmp-js": "angelxuanchang/bmp-js",
     "utif": "^2.0.0",
